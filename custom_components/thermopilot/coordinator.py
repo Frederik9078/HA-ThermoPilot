@@ -114,7 +114,7 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             self.history["indoor_count"] = int(self.history.get("indoor_count", 0)) + 1
 
         days = self.history.get("days", [])
-        model = self._fit_model(days)
+        model = self._fit_model(days, now.date())
         base = float(self.config.get("degree_base", 17.0))
         outdoor_today = self._mean("outdoor_sum", "outdoor_count")
         indoor_today = self._mean("indoor_sum", "indoor_count")
@@ -187,67 +187,68 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 "energy_kwh": round(energy, 3),
                 "outdoor_mean": round(outdoor_mean, 2),
             })
-            self.history["days"] = self.history["days"][-60:]
+            self.history["days"] = self.history["days"][-730:]
         self.history["day_energy_kwh"] = 0.0
         self.history["outdoor_sum"] = 0.0
         self.history["outdoor_count"] = 0
         self.history["indoor_sum"] = 0.0
         self.history["indoor_count"] = 0
 
-    def _fit_model(self, days):
-        """Recency-weighted regression: daily kWh = slope * heating degree days + base load.
+    def _fit_model(self, days, reference_date):
+        """Fit daily electricity against heating degree days.
 
-        A 14-day half-life lets the model adapt gradually as the building's
-        behavior changes, while retaining older observations as useful context.
+        Recent observations adapt the model to current behavior. Observations
+        from roughly the same calendar period in previous years receive a
+        seasonal weight, so the model can reuse comparable seasonal experience.
         """
         from datetime import date
+        import math
 
         base = float(self.config.get("degree_base", 17.0))
         rows = []
-        valid_dates = []
         for index, day in enumerate(days):
             if day.get("outdoor_mean") is None or day.get("energy_kwh") is None:
                 continue
             try:
                 day_date = date.fromisoformat(day["date"])
+                x = max(0.0, base - float(day["outdoor_mean"]))
+                y = float(day["energy_kwh"])
             except (KeyError, TypeError, ValueError):
-                day_date = None
-            rows.append((
-                max(0.0, base - float(day["outdoor_mean"])),
-                float(day["energy_kwh"]),
-                day_date,
-                index,
-            ))
-            if day_date is not None:
-                valid_dates.append(day_date)
+                continue
+            age_days = max(0, (reference_date - day_date).days)
+            recent_weight = 0.5 ** (age_days / 45.0)
 
-        if len(rows) < 5 or len({round(row[0], 1) for row in rows}) < 3:
+            # Seasonal match: compare day-of-year, including year-end wrap.
+            day_of_year_delta = abs(day_date.timetuple().tm_yday - reference_date.timetuple().tm_yday)
+            day_of_year_delta = min(day_of_year_delta, 365 - day_of_year_delta)
+            seasonal_weight = 0.0
+            years_old = reference_date.year - day_date.year
+            if years_old >= 1 and day_of_year_delta <= 30:
+                seasonal_weight = (
+                    0.50
+                    * math.exp(-day_of_year_delta / 15.0)
+                    * (0.5 ** (max(0, years_old - 1) / 2.0))
+                )
+
+            weight = max(recent_weight, seasonal_weight)
+            rows.append((x, y, weight))
+
+        if len(rows) < 5 or len({round(x, 1) for x, _, _ in rows}) < 3:
             return None
 
-        latest_date = max(valid_dates) if valid_dates else None
-        weighted_rows = []
-        for x, y, day_date, index in rows:
-            age_days = (
-                max(0, (latest_date - day_date).days)
-                if latest_date is not None and day_date is not None
-                else len(rows) - 1 - index
-            )
-            weight = 0.5 ** (age_days / 14.0)
-            weighted_rows.append((x, y, weight))
-
-        weight_sum = sum(weight for _, _, weight in weighted_rows)
+        weight_sum = sum(weight for _, _, weight in rows)
         if weight_sum <= 0:
             return None
-        x_mean = sum(x * weight for x, _, weight in weighted_rows) / weight_sum
-        y_mean = sum(y * weight for _, y, weight in weighted_rows) / weight_sum
+        x_mean = sum(x * weight for x, _, weight in rows) / weight_sum
+        y_mean = sum(y * weight for _, y, weight in rows) / weight_sum
         denominator = sum(
-            weight * (x - x_mean) ** 2 for x, _, weight in weighted_rows
+            weight * (x - x_mean) ** 2 for x, _, weight in rows
         )
         if denominator <= 0:
             return None
         slope = sum(
             weight * (x - x_mean) * (y - y_mean)
-            for x, y, weight in weighted_rows
+            for x, y, weight in rows
         ) / denominator
         intercept = y_mean - slope * x_mean
         if slope < 0:

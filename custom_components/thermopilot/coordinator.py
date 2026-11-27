@@ -138,6 +138,7 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 0.0, model["slope"] * degree_days + model["intercept"]
             )
 
+        accuracy = self._calculate_accuracy(days, now.date())
         data = {
             "energy_total_kwh": energy,
             "energy_today_kwh": round(float(self.history.get("day_energy_kwh", 0)), 3),
@@ -162,6 +163,9 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             "model_slope": model["slope"] if model else None,
             "model_intercept": model["intercept"] if model else None,
             "model_days": len(days),
+            "model_accuracy_30d": accuracy["accuracy_percent"],
+            "model_accuracy_samples_30d": accuracy["samples"],
+            "model_accuracy_mean_error_percent_30d": accuracy["mean_error_percent"],
             "model_status": "Klar" if model else f"Indsamler data ({len(days)}/5 dage)",
             "last_updated": now.isoformat(),
         }
@@ -294,6 +298,61 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
         self.history["outdoor_count"] = 0
         self.history["indoor_sum"] = 0.0
         self.history["indoor_count"] = 0
+
+
+    def _calculate_accuracy(self, days, reference_date):
+        """Backtest recent daily predictions without training on the target day.
+
+        Uses the target day's observed outdoor mean to isolate consumption-model
+        accuracy from weather-forecast error. Each prediction uses only days
+        that had already completed before the target day.
+        """
+        from datetime import date
+
+        valid_days = []
+        for day in days:
+            try:
+                date.fromisoformat(day["date"])
+                energy = float(day["energy_kwh"])
+                outdoor = float(day["outdoor_mean"])
+                if math.isfinite(energy) and math.isfinite(outdoor) and energy > 0:
+                    valid_days.append(day)
+            except (KeyError, TypeError, ValueError):
+                continue
+
+        recent = valid_days[-30:]
+        errors = []
+        base = float(self.config.get("degree_base", 17.0))
+        for target in recent:
+            try:
+                target_date = date.fromisoformat(target["date"])
+                actual = float(target["energy_kwh"])
+                outdoor_mean = float(target["outdoor_mean"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            prior_days = [
+                day for day in valid_days
+                if date.fromisoformat(day["date"]) < target_date
+            ]
+            model = self._fit_model(prior_days, target_date)
+            if model is None or actual <= 0:
+                continue
+            degree_days = max(0.0, base - outdoor_mean)
+            predicted = max(0.0, model["slope"] * degree_days + model["intercept"])
+            errors.append(abs(predicted - actual) / actual * 100.0)
+
+        if not errors:
+            return {
+                "accuracy_percent": None,
+                "samples": 0,
+                "mean_error_percent": None,
+            }
+        mean_error = sum(errors) / len(errors)
+        return {
+            "accuracy_percent": round(max(0.0, 100.0 - mean_error), 1),
+            "samples": len(errors),
+            "mean_error_percent": round(mean_error, 1),
+        }
 
     def _fit_model(self, days, reference_date):
         """Fit daily electricity against heating degree days.

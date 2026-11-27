@@ -7,6 +7,12 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 
+DEFAULT_ENABLED_SENSORS = {
+    "estimated_room_warmup_minutes",
+    "model_accuracy_30d",
+    "model_status",
+}
+
 SENSORS = [
     ("energy_total_kwh", "Samlet energimåler", "kWh", "energy", "total"),
     ("energy_today_kwh", "Samlet elforbrug i dag", "kWh", "energy", "measurement"),
@@ -47,6 +53,9 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
         self.key = key
         self._attr_name = name
         self._attr_unique_id = f"{entry.entry_id}_{key}"
+        # Keep the normal entity list focused on user-facing results.
+        # Diagnostic/input entities remain available and can be enabled manually.
+        self._attr_entity_registry_enabled_default = key in DEFAULT_ENABLED_SENSORS
         self._attr_native_unit_of_measurement = unit
 
         if device_class == "temperature":

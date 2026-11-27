@@ -66,6 +66,7 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             "outdoor_count": 0,
             "indoor_sum": 0.0,
             "indoor_count": 0,
+            "room_thermal": {},
         }
 
     async def async_setup(self):
@@ -113,6 +114,8 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             self.history["indoor_sum"] = float(self.history.get("indoor_sum", 0)) + indoor_avg
             self.history["indoor_count"] = int(self.history.get("indoor_count", 0)) + 1
 
+        room_thermal = self._update_room_thermal(now)
+
         days = self.history.get("days", [])
         model = self._fit_model(days, now.date())
         base = float(self.config.get("degree_base", 17.0))
@@ -145,6 +148,9 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             "thermostat_active_count": self._active_count(
                 self.config.get("thermostat_entities", [])
             ),
+            "room_heat_demand_c": round(sum(r["deficit_c"] for r in room_thermal), 2) if room_thermal else None,
+            "estimated_room_warmup_minutes": max((r["estimated_minutes"] for r in room_thermal if r["estimated_minutes"] is not None), default=None),
+            "room_thermal_details": room_thermal,
             "weather_dependent_electricity_today": weather_dependent_kwh,
             "estimated_total_electricity_today": estimated_total_kwh,
             "model_slope": model["slope"] if model else None,
@@ -156,6 +162,66 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
 
         await self.store.async_save(self.history)
         return data
+
+
+    def _update_room_thermal(self, now):
+        """Learn each climate circuit's observed warm-up rate and estimate lead time."""
+        from datetime import datetime
+
+        learned = self.history.setdefault("room_thermal", {})
+        results = []
+        for entity_id in self.config.get("climate_entities", []):
+            state = self.hass.states.get(entity_id)
+            if state is None:
+                continue
+            attrs = state.attributes
+            current = attrs.get("current_temperature")
+            target = attrs.get("temperature")
+            try:
+                current = float(current)
+                target = float(target)
+            except (TypeError, ValueError):
+                continue
+            if not math.isfinite(current) or not math.isfinite(target):
+                continue
+
+            room = learned.setdefault(entity_id, {})
+            now_ts = now.timestamp()
+            previous_temp = room.get("last_current")
+            previous_ts = room.get("last_ts")
+            if previous_temp is not None and previous_ts is not None:
+                elapsed_hours = (now_ts - float(previous_ts)) / 3600.0
+                rise = current - float(previous_temp)
+                # Learn only plausible positive warm-up observations. A 5-minute
+                # sample is noisy, so smooth the rate rather than replacing it.
+                if 0.04 <= elapsed_hours <= 1.0 and rise > 0.015:
+                    rate = rise / elapsed_hours
+                    if 0.05 <= rate <= 3.0:
+                        old_rate = room.get("warmup_rate")
+                        room["warmup_rate"] = (
+                            rate if old_rate is None
+                            else 0.8 * float(old_rate) + 0.2 * rate
+                        )
+
+            room["last_current"] = current
+            room["last_ts"] = now_ts
+            room["last_target"] = target
+            deficit = max(0.0, target - current)
+            rate = room.get("warmup_rate")
+            estimated_minutes = (
+                round(deficit / float(rate) * 60.0)
+                if deficit > 0.05 and rate is not None and float(rate) >= 0.05
+                else (0 if deficit <= 0.05 else None)
+            )
+            results.append({
+                "entity_id": entity_id,
+                "current_temperature": round(current, 2),
+                "setpoint": round(target, 2),
+                "deficit_c": round(deficit, 2),
+                "learned_warmup_rate_c_per_hour": round(float(rate), 3) if rate is not None else None,
+                "estimated_minutes": estimated_minutes,
+            })
+        return results
 
     def _active_count(self, entity_ids):
         if not entity_ids:

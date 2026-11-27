@@ -52,6 +52,8 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
             self._attr_device_class = SensorDeviceClass.TEMPERATURE
         elif device_class == "energy":
             self._attr_device_class = SensorDeviceClass.ENERGY
+        elif device_class == "duration":
+            self._attr_device_class = SensorDeviceClass.DURATION
 
         if state_class == "measurement":
             self._attr_state_class = SensorStateClass.MEASUREMENT

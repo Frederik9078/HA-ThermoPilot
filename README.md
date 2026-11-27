@@ -22,7 +22,7 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 - Termostat-/telestatvælgeren accepterer entiteter fra domænerne `sensor`, `binary_sensor`, `switch` og `climate`.
 - Tomme valgfrie entitetsfelter og tomme telestat-/termostatlister håndteres ved lagring.
 - Gemmer daglige datapunkter lokalt i Home Assistant.
-- Efter mindst fem afsluttede dage tilpasser den en adaptiv, recency-vægtet model: samlet dagligt elforbrug = vejrafhængigt forbrug + grundlast. Nye dage vægtes højere end ældre observationer (14 dages halveringstid), så modellen gradvist følger ændringer i bygningens forbrug.
+- Efter mindst fem afsluttede dage tilpasser den en adaptiv, recency-vægtet model: samlet dagligt elforbrug = vejrafhængigt forbrug + grundlast. Nye dage vægtes højere, men målinger fra omtrent samme kalenderperiode i tidligere år får også ekstra sæsonvægt. Der gemmes op til 730 dage (ca. to år), så modellen kan genbruge erfaring fra samme årstid.
 
 ## Vigtige begrænsninger
 
@@ -37,7 +37,7 @@ Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i 
 - Energimåleren skal være en stigende totalmåler, ikke en øjeblikkelig effektmåler i W.
 - Dagens forbrug begynder ved integrationens første aflæsning. Forbrug før installationen rekonstrueres ikke.
 - Daglige modeldata opbygges fremadrettet. CSV-filer importeres ikke automatisk i denne version.
-- Modellen kræver mindst fem afsluttede dage og mindst tre forskellige niveauer af graddøgn. Den genberegnes løbende, når nye dagsdata gemmes, og vægter de seneste 14 dage højest.
+- Modellen kræver mindst fem afsluttede dage og mindst tre forskellige niveauer af graddøgn. Den genberegnes løbende, når nye dagsdata gemmes. Historikken gemmes i op til 730 dage, og målinger fra samme periode i tidligere år får ekstra vægt.
 
 ## Sensorer
 

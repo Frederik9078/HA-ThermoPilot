@@ -56,6 +56,8 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
         self.entry = entry
         self.config = {**entry.data, **entry.options}
         self.config.pop("hp_heater_status_entity", None)
+        # Room temperatures now come from the selected climate entities.
+        self.config.pop("room_entities", None)
         self.store = Store(hass, STORAGE_VERSION, f"{STORAGE_KEY}_{entry.entry_id}")
         self.history = {
             "days": [],
@@ -81,11 +83,17 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
         now = dt_util.now()
         energy = _energy_kwh(self.hass, self.config.get("energy_entity"))
         outdoor = _float_state(self.hass, self.config.get("outdoor_entity"))
-        room_values = [
-            _float_state(self.hass, entity)
-            for entity in self.config.get("room_entities", [])
-        ]
-        room_values = [value for value in room_values if value is not None]
+        room_values = []
+        for entity_id in self.config.get("climate_entities", []):
+            climate_state = self.hass.states.get(entity_id)
+            if climate_state is None:
+                continue
+            try:
+                room_temp = float(climate_state.attributes.get("current_temperature"))
+                if math.isfinite(room_temp):
+                    room_values.append(room_temp)
+            except (TypeError, ValueError):
+                continue
         indoor_avg = sum(room_values) / len(room_values) if room_values else None
 
         supply = _float_state(self.hass, self.config.get("supply_entity"))

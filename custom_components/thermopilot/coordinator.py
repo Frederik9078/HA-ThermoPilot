@@ -118,10 +118,13 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
         base = float(self.config.get("degree_base", 17.0))
         outdoor_today = self._mean("outdoor_sum", "outdoor_count")
         indoor_today = self._mean("indoor_sum", "indoor_count")
-        estimated_weather_kwh = None
+        weather_dependent_kwh = None
+        estimated_total_kwh = None
         if model and outdoor_today is not None:
-            estimated_weather_kwh = max(
-                0.0, model["slope"] * max(0.0, base - outdoor_today)
+            degree_days = max(0.0, base - outdoor_today)
+            weather_dependent_kwh = max(0.0, model["slope"] * degree_days)
+            estimated_total_kwh = max(
+                0.0, model["slope"] * degree_days + model["intercept"]
             )
 
         data = {
@@ -142,7 +145,8 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             "thermostat_active_count": self._active_count(
                 self.config.get("thermostat_entities", [])
             ),
-            "weather_sensitive_electricity_today": estimated_weather_kwh,
+            "weather_dependent_electricity_today": weather_dependent_kwh,
+            "estimated_total_electricity_today": estimated_total_kwh,
             "model_slope": model["slope"] if model else None,
             "model_intercept": model["intercept"] if model else None,
             "model_days": len(days),
@@ -191,30 +195,61 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
         self.history["indoor_count"] = 0
 
     def _fit_model(self, days):
-        """Exploratory least-squares fit of daily kWh against heating degree days."""
+        """Recency-weighted regression: daily kWh = slope * heating degree days + base load.
+
+        A 14-day half-life lets the model adapt gradually as the building's
+        behavior changes, while retaining older observations as useful context.
+        """
+        from datetime import date
+
         base = float(self.config.get("degree_base", 17.0))
-        rows = [
-            (
+        rows = []
+        valid_dates = []
+        for index, day in enumerate(days):
+            if day.get("outdoor_mean") is None or day.get("energy_kwh") is None:
+                continue
+            try:
+                day_date = date.fromisoformat(day["date"])
+            except (KeyError, TypeError, ValueError):
+                day_date = None
+            rows.append((
                 max(0.0, base - float(day["outdoor_mean"])),
                 float(day["energy_kwh"]),
-            )
-            for day in days
-            if day.get("outdoor_mean") is not None
-            and day.get("energy_kwh") is not None
-        ]
-        if len(rows) < 5 or len({round(x, 1) for x, _ in rows}) < 3:
+                day_date,
+                index,
+            ))
+            if day_date is not None:
+                valid_dates.append(day_date)
+
+        if len(rows) < 5 or len({round(row[0], 1) for row in rows}) < 3:
             return None
-        xs = [row[0] for row in rows]
-        ys = [row[1] for row in rows]
-        x_mean = sum(xs) / len(xs)
-        y_mean = sum(ys) / len(ys)
-        denominator = sum((x - x_mean) ** 2 for x in xs)
+
+        latest_date = max(valid_dates) if valid_dates else None
+        weighted_rows = []
+        for x, y, day_date, index in rows:
+            age_days = (
+                max(0, (latest_date - day_date).days)
+                if latest_date is not None and day_date is not None
+                else len(rows) - 1 - index
+            )
+            weight = 0.5 ** (age_days / 14.0)
+            weighted_rows.append((x, y, weight))
+
+        weight_sum = sum(weight for _, _, weight in weighted_rows)
+        if weight_sum <= 0:
+            return None
+        x_mean = sum(x * weight for x, _, weight in weighted_rows) / weight_sum
+        y_mean = sum(y * weight for _, y, weight in weighted_rows) / weight_sum
+        denominator = sum(
+            weight * (x - x_mean) ** 2 for x, _, weight in weighted_rows
+        )
         if denominator <= 0:
             return None
         slope = sum(
-            (x - x_mean) * (y - y_mean) for x, y in rows
+            weight * (x - x_mean) * (y - y_mean)
+            for x, y, weight in weighted_rows
         ) / denominator
         intercept = y_mean - slope * x_mean
         if slope < 0:
             return None
-        return {"slope": slope, "intercept": intercept}
+        return {"slope": slope, "intercept": max(0.0, intercept)}

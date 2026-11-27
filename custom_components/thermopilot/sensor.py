@@ -73,7 +73,13 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self):
         if not self.coordinator.data:
             return {}
-        if self.key in ("room_heat_demand_c", "estimated_room_warmup_minutes"):\n            return {\n                "rooms": self.coordinator.data.get("room_thermal_details", []),\n                "explanation": "Setpunkt minus aktuel rumtemperatur. Opvarmningstiden bygger på den indlærte temperaturstigning for hver valgt climate-entitet.",\n                "note": "Estimaterne er foreløbige og påvirkes af udetemperatur, varmekildens drift og måleusikkerhed.",\n            }\n        if self.key in ("weather_dependent_electricity_today", "estimated_total_electricity_today"):
+        if self.key in ("room_heat_demand_c", "estimated_room_warmup_minutes"):
+            return {
+                "rooms": self.coordinator.data.get("room_thermal_details", []),
+                "explanation": "Setpunkt minus aktuel rumtemperatur. Opvarmningstiden bygger på den indlærte temperaturstigning for hver valgt climate-entitet.",
+                "note": "Estimaterne er foreløbige og påvirkes af udetemperatur, varmekildens drift og måleusikkerhed.",
+            }
+        if self.key in ("weather_dependent_electricity_today", "estimated_total_electricity_today"):
             return {
                 "explanation": "Adaptivt estimat baseret på dagligt samlet elforbrug, graddøgn og en estimeret grundlast.",
                 "warning": "Det er et estimat af samlet elforbrug, ikke isoleret rumopvarmning eller målt varmeenergi. Varmtvandsproduktion og elpatronforbrug kan indgå.",

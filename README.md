@@ -2,7 +2,7 @@
 
 Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata og udvikling af en eksperimentel varmebehovsmodel.
 
-> **Udviklingsversion 0.1.0:** Denne version er kun til overvågning og test. Den styrer ikke varmepumpen.
+> **Udviklingsversion 0.1.1:** Denne version er kun til overvågning og test. Den styrer ikke varmepumpen.
 
 ## Installation via HACS
 
@@ -13,7 +13,7 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 5. Genstart Home Assistant.
 6. Tilføj **ThermoPilot** under **Indstillinger → Enheder og tjenester → Tilføj integration**.
 
-## Funktioner i version 0.1.0
+## Funktioner i version 0.1.1
 
 - Læser en kumulativ energisensor i Wh, kWh eller MWh og beregner dagens forbrug ud fra tællerens ændring.
 - Læser udetemperatur, fremløb, retur og valgfri rumtemperaturer.
@@ -54,7 +54,7 @@ Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i 
 
 ## Opdateringer
 
-Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.0`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
+Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.1`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
 
 ## Projekt
 

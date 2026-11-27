@@ -2,7 +2,7 @@
 
 Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata og udvikling af en eksperimentel varmebehovsmodel.
 
-> **Udviklingsversion 0.1.5:** Denne version er kun til overvågning og test. Den styrer ikke varmepumpen.
+> **Udviklingsversion 0.1.6:** Denne version er kun til overvågning og test. Den styrer ikke varmepumpen.
 
 ## Installation via HACS
 
@@ -13,7 +13,9 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 5. Genstart Home Assistant.
 6. Tilføj **ThermoPilot** under **Indstillinger → Enheder og tjenester → Tilføj integration**.
 
-## Funktioner i version 0.1.5
+## Funktioner i version 0.1.6
+
+- Valgfri vejrudsigt-entitet kan vælges og ændres i konfigurationen/options. Timeprognosen bruges til 24-timers forbrugsestimat.
 
 - Læser en kumulativ energisensor i Wh, kWh eller MWh og beregner dagens forbrug ud fra tællerens ændring.
 - Læser udetemperatur, fremløb og retur. Rumtemperaturer hentes automatisk fra de valgte climate-termostater.
@@ -30,7 +32,7 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 
 ## 24-timers prognose
 
-Sensoren **Forventet elforbrug næste 24 timer** bruger den adaptive døgnmodel og den senest målte udetemperatur som proxy for gennemsnitstemperaturen i den kommende periode. Det er en foreløbig prognose og ikke en egentlig vejrprognosebaseret beregning. En vejrprognosekilde skal tilføjes, før modellen kan tage højde for forventede temperaturændringer gennem de næste 24 timer. Forbruget omfatter samme typer elforbrug som den valgte energimåler, herunder eventuelt varmtvandsproduktion og elpatron.
+Sensoren **Forventet elforbrug næste 24 timer** bruger den adaptive døgnmodel og den senest målte udetemperatur som proxy for gennemsnitstemperaturen i den kommende periode. Det er en foreløbig prognose og ikke en egentlig vejrprognosebaseret beregning. Vælg en vejrudsigt-entitet i ThermoPilot-konfigurationen. ThermoPilot henter dens timeprognose via Home Assistants `weather.get_forecasts` og bruger gennemsnitstemperaturen for de næste 24 timer. Hvis prognosen ikke kan hentes eller har færre end 12 timepunkter, falder den tilbage til senest målte udetemperatur. Forbruget omfatter samme typer elforbrug som den valgte energimåler, herunder eventuelt varmtvandsproduktion og elpatron.
 
 ## Modelnøjagtighed
 
@@ -66,7 +68,7 @@ Som standard aktiveres de brugerrettede sensorer: brugt energi i dag, estimeret 
 
 ## Opdateringer
 
-Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.5`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
+Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.6`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
 
 ## Projekt
 

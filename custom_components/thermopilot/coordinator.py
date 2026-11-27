@@ -138,12 +138,13 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 0.0, model["slope"] * degree_days + model["intercept"]
             )
 
-        # Provisional rolling-24h estimate: the daily model is evaluated using
-        # the latest outdoor temperature as a proxy for the coming day's mean.
-        # A weather forecast entity will be needed for a true weather-led forecast.
+        # Prefer an hourly forecast from the configured HA weather entity.
+        forecast_mean = await self._async_forecast_mean_temperature(now)
+        forecast_source = "weather_forecast" if forecast_mean is not None else "current_outdoor_temperature"
+        forecast_temperature = forecast_mean if forecast_mean is not None else outdoor
         forecast_24h_kwh = None
-        if model and outdoor is not None:
-            forecast_degree_days = max(0.0, base - outdoor)
+        if model and forecast_temperature is not None:
+            forecast_degree_days = max(0.0, base - forecast_temperature)
             forecast_24h_kwh = max(
                 0.0, model["slope"] * forecast_degree_days + model["intercept"]
             )
@@ -153,6 +154,8 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
             "energy_total_kwh": energy,
             "energy_today_kwh": round(float(self.history.get("day_energy_kwh", 0)), 3),
             "forecast_electricity_next_24h_kwh": round(forecast_24h_kwh, 2) if forecast_24h_kwh is not None else None,
+            "forecast_temperature_mean_24h": round(forecast_mean, 2) if forecast_mean is not None else None,
+            "forecast_source": forecast_source,
             "outdoor_temperature": outdoor,
             "outdoor_average_today": outdoor_today,
             "indoor_average": indoor_avg,
@@ -184,6 +187,48 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
         await self.store.async_save(self.history)
         return data
 
+
+
+    async def _async_forecast_mean_temperature(self, now):
+        """Return the mean hourly outdoor temperature forecast for the next 24h."""
+        entity_id = self.config.get("weather_entity")
+        if not entity_id:
+            return None
+        try:
+            response = await self.hass.services.async_call(
+                "weather",
+                "get_forecasts",
+                {"entity_id": entity_id, "type": "hourly"},
+                blocking=True,
+                return_response=True,
+            )
+        except Exception as err:
+            _LOGGER.debug("Unable to fetch hourly weather forecast: %s", err)
+            return None
+
+        entity_result = (response or {}).get(entity_id, {})
+        forecasts = entity_result.get("forecast", [])
+        end = now + timedelta(hours=24)
+        values = []
+        for item in forecasts:
+            forecast_time = dt_util.parse_datetime(item.get("datetime"))
+            temperature = item.get("temperature")
+            if forecast_time is None or temperature is None:
+                continue
+            if forecast_time.tzinfo is None:
+                forecast_time = forecast_time.replace(tzinfo=now.tzinfo)
+            if now <= forecast_time < end:
+                try:
+                    value = float(temperature)
+                    if math.isfinite(value):
+                        values.append(value)
+                except (TypeError, ValueError):
+                    continue
+        # Require reasonable hourly coverage rather than extrapolating from
+        # one or two forecast points.
+        if len(values) < 12:
+            return None
+        return sum(values) / len(values)
 
     def _update_room_thermal(self, now):
         """Learn each climate circuit's observed warm-up rate and estimate lead time."""

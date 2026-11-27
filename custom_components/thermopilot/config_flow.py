@@ -62,6 +62,7 @@ class ThermoPilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema = vol.Schema({
             vol.Required("energy_entity"): _entity_selector(),
             vol.Required("outdoor_entity"): _entity_selector(),
+            vol.Optional("weather_entity"): _entity_selector(domain="weather"),
             vol.Optional("supply_entity"): _entity_selector(),
             vol.Optional("return_entity"): _entity_selector(),
             vol.Optional("climate_entities", default=[]): _entity_selector(
@@ -92,6 +93,10 @@ class ThermoPilotOptionsFlow(config_entries.OptionsFlow):
             vol.Required("energy_entity", default=current["energy_entity"]): _entity_selector(),
             vol.Required("outdoor_entity", default=current["outdoor_entity"]): _entity_selector(),
         }
+        if current.get("weather_entity"):
+            schema_fields[vol.Optional("weather_entity", default=current["weather_entity"])] = _entity_selector(domain="weather")
+        else:
+            schema_fields[vol.Optional("weather_entity")] = _entity_selector(domain="weather")
         _optional_entity_field(schema_fields, "supply_entity", current)
         _optional_entity_field(schema_fields, "return_entity", current)
 

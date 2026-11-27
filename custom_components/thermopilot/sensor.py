@@ -104,8 +104,10 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
             }
         if self.key == "forecast_electricity_next_24h_kwh":
             return {
-                "method": "Døgnmodellen evalueres med den senest målte udetemperatur som proxy for gennemsnittet de næste 24 timer.",
-                "limitation": "Dette er endnu ikke en vejrprognosebaseret beregning. En vejrprognosekilde skal tilføjes for at tage højde for forventede temperaturændringer.",
+                "method": "Døgnmodellen evalueres med gennemsnittet af timeprognosens temperaturer for de næste 24 timer, når en vejrudsigt er valgt.",
+                "forecast_source": self.coordinator.data.get("forecast_source"),
+                "forecast_mean_temperature": self.coordinator.data.get("forecast_temperature_mean_24h"),
+                "limitation": "Hvis timeprognosen mangler eller har utilstrækkelig dækning, falder beregningen tilbage til den senest målte udetemperatur.",
                 "model_days": self.coordinator.data.get("model_days"),
                 "model_status": self.coordinator.data.get("model_status"),
             }

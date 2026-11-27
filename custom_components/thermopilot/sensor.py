@@ -26,6 +26,7 @@ SENSORS = [
     ("model_slope", "Modelkoefficient", "kWh pr. graddøgn", None, "measurement"),
     ("model_intercept", "Modelgrundlast", "kWh/døgn", None, "measurement"),
     ("model_days", "Dage i beregningsmodel", "dage", None, "measurement"),
+    ("model_accuracy_30d", "Prognosenøjagtighed – 30 dage", "%", None, "measurement"),
     ("model_status", "Status for varmebehovsmodel", None, None, None),
 ]
 
@@ -88,6 +89,13 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
                 "model_days": self.coordinator.data.get("model_days"),
                 "model_status": self.coordinator.data.get("model_status"),
                 "model_type": "Recency-weighted linear regression, 45-day half-life",
+            }
+        if self.key == "model_accuracy_30d":
+            return {
+                "samples": self.coordinator.data.get("model_accuracy_samples_30d"),
+                "mean_error_percent": self.coordinator.data.get("model_accuracy_mean_error_percent_30d"),
+                "method": "Gennemsnitlig daglig absolut procentafvigelse, beregnet med historisk backtest uden at træne på måldagen.",
+                "weather_note": "Bruger den målte gennemsnitlige udetemperatur for dagen. Måler derfor modellens forbrugsestimat isoleret fra fejl i vejrudsigten.",
             }
         if self.key == "energy_today_kwh":
             return {

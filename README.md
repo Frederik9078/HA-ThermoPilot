@@ -22,7 +22,7 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 - Termostat-/telestatvælgeren accepterer entiteter fra domænerne `sensor`, `binary_sensor`, `switch` og `climate`.
 - Tomme valgfrie entitetsfelter og tomme telestat-/termostatlister håndteres ved lagring.
 - Gemmer daglige datapunkter lokalt i Home Assistant.
-- Efter mindst fem afsluttede dage forsøger den at tilpasse en simpel lineær model mellem graddøgn og samlet elforbrug.
+- Efter mindst fem afsluttede dage tilpasser den en adaptiv, recency-vægtet model: samlet dagligt elforbrug = vejrafhængigt forbrug + grundlast. Nye dage vægtes højere end ældre observationer (14 dages halveringstid), så modellen gradvist følger ændringer i bygningens forbrug.
 
 ## Vigtige begrænsninger
 
@@ -30,14 +30,14 @@ Integrationen kan ikke måle den leverede varmeeffekt eller beregne en korrekt C
 
 Der er ikke længere nogen særskilt VVB-/brugsvandsfunktion eller VVB-elpatronsensor i integrationen. Bemærk dog, at hvis den valgte Shelly-måler også måler varmepumpens kompressor under varmtvandsproduktion, vil dette elforbrug fortsat indgå i det samlede energiforbrug. Den separate elpatron i varmtvandsbeholderen er heller ikke målt særskilt.
 
-Sensoren **Vejrafhængigt elforbrug estimeret i dag** er kun et eksperimentelt, vejrkorreleret estimat. Den er ikke et isoleret mål for rumopvarmning eller leveret varme. Det samlede elforbrug kan påvirkes af varmtvandsproduktion, elpatrondrift, driftsændringer og interne/solmæssige varmetilskud.
+Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i dag** er eksperimentelle estimater fra den adaptive model. Den er ikke et isoleret mål for rumopvarmning eller leveret varme. Det samlede elforbrug kan påvirkes af varmtvandsproduktion, elpatrondrift, driftsændringer og interne/solmæssige varmetilskud.
 
 ## Dataopsamling
 
 - Energimåleren skal være en stigende totalmåler, ikke en øjeblikkelig effektmåler i W.
 - Dagens forbrug begynder ved integrationens første aflæsning. Forbrug før installationen rekonstrueres ikke.
 - Daglige modeldata opbygges fremadrettet. CSV-filer importeres ikke automatisk i denne version.
-- Modellen kræver mindst fem afsluttede dage og tilstrækkelig variation i udetemperaturen.
+- Modellen kræver mindst fem afsluttede dage og mindst tre forskellige niveauer af graddøgn. Den genberegnes løbende, når nye dagsdata gemmes, og vægter de seneste 14 dage højest.
 
 ## Sensorer
 

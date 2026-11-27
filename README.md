@@ -46,7 +46,7 @@ Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i 
 - Gennemsnitlig rumtemperatur og antal aktive rumfølere
 - Fremløb, retur og temperaturforskel
 - Antal aktive termostater
-- Vejrafhængigt elforbrug estimeret i dag
+- Vejrafhængigt elforbrug og estimeret samlet elforbrug i dag
 - Modelkoefficient, modelgrundlast, antal modeldage og modelstatus
 
 ## Opdateringer

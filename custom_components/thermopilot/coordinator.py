@@ -145,9 +145,7 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 if supply is not None and return_temp is not None
                 else None
             ),
-            "thermostat_active_count": self._active_count(
-                self.config.get("thermostat_entities", [])
-            ),
+            "thermostat_active_count": self._climate_heat_call_count(),
             "room_heat_demand_c": round(sum(r["deficit_c"] for r in room_thermal), 2) if room_thermal else None,
             "estimated_room_warmup_minutes": max((r["estimated_minutes"] for r in room_thermal if r["estimated_minutes"] is not None), default=None),
             "room_thermal_details": room_thermal,
@@ -166,8 +164,6 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
 
     def _update_room_thermal(self, now):
         """Learn each climate circuit's observed warm-up rate and estimate lead time."""
-        from datetime import datetime
-
         learned = self.history.setdefault("room_thermal", {})
         results = []
         for entity_id in self.config.get("climate_entities", []):
@@ -222,6 +218,29 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 "estimated_minutes": estimated_minutes,
             })
         return results
+
+    def _climate_heat_call_count(self):
+        """Count selected climate entities currently requesting heat."""
+        count = 0
+        for entity_id in self.config.get("climate_entities", []):
+            state = self.hass.states.get(entity_id)
+            if state is None:
+                continue
+            attrs = state.attributes
+            action = str(attrs.get("hvac_action", "")).lower()
+            if action == "heating":
+                count += 1
+                continue
+            try:
+                current = float(attrs.get("current_temperature"))
+                target = float(attrs.get("temperature"))
+            except (TypeError, ValueError):
+                continue
+            if state.state.lower() != "off" and target > current + 0.2:
+                count += 1
+        return count if self.config.get("climate_entities") else self._active_count(
+            self.config.get("thermostat_entities", [])
+        )
 
     def _active_count(self, entity_ids):
         if not entity_ids:

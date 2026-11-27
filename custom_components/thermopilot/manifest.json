@@ -1,7 +1,7 @@
 {
   "domain": "thermopilot",
   "name": "ThermoPilot",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "documentation": "https://github.com/Frederik9078/HA-ThermoPilot",
   "issue_tracker": "https://github.com/Frederik9078/HA-ThermoPilot/issues",
   "requirements": [],

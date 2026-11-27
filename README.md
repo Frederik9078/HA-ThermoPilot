@@ -16,9 +16,9 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 ## Funktioner i version 0.1.1
 
 - Læser en kumulativ energisensor i Wh, kWh eller MWh og beregner dagens forbrug ud fra tællerens ændring.
-- Læser udetemperatur, fremløb, retur og valgfri rumtemperaturer.
-- Beregner gennemsnit af de valgte rumtemperaturer.
-- Vælg rummenes eksisterende `climate`-termostater én gang. ThermoPilot læser både setpunkt (`temperature`) og aktuel temperatur (`current_temperature`).
+- Læser udetemperatur, fremløb og retur. Rumtemperaturer hentes automatisk fra de valgte climate-termostater.
+- Beregner gennemsnitlig rumtemperatur ud fra climate-termostaternes aktuelle temperatur.
+- Vælg rummenes eksisterende `climate`-termostater én gang; der kræves ingen separat rumtemperaturvælger. ThermoPilot læser både setpunkt (`temperature`) og aktuel temperatur (`current_temperature`).
 - Beregner temperaturunderskud og lærer opvarmningshastighed pr. rum/kreds.
 - Bruger `hvac_action` når det findes, ellers temperaturforskellen, til at vurdere om rummet kalder på varme.
 - Estimerer resterende opvarmningstid ud fra hvert rums målte temperaturstigning.
@@ -45,7 +45,7 @@ Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i 
 
 - Samlet energimåler og samlet elforbrug i dag
 - Aktuel og gennemsnitlig udetemperatur
-- Gennemsnitlig rumtemperatur og antal aktive rumfølere
+- Gennemsnitlig rumtemperatur og antal rum med tilgængelig temperatur fra climate-termostater
 - Fremløb, retur og temperaturforskel
 - Antal rumtermostater, der kalder på varme
 - Samlet temperaturunderskud og estimeret opvarmningstid pr. rum/kreds

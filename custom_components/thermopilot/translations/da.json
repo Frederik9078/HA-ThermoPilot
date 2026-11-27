@@ -10,7 +10,8 @@
           "supply_entity": "Varmesystem – fremløbstemperatur (°C)",
           "return_entity": "Varmesystem – returtemperatur (°C)",
           "climate_entities": "Varmesystem – rumtermostater (setpunkt og aktuel temperatur)",
-          "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)"
+          "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)",
+          "weather_entity": "Vejrudsigt – timeprognose"
         },
         "data_description": {
           "energy_entity": "Vælg en kumulativ energimåler for varmepumpens samlede elforbrug. Enheden kan være Wh, kWh eller MWh.",
@@ -18,7 +19,8 @@
           "supply_entity": "Sensor på fremløbet fra varmepumpen. Valgfrit.",
           "return_entity": "Sensor på returen til varmepumpen. Valgfrit.",
           "climate_entities": "Vælg de eksisterende climate-termostater for rummene. ThermoPilot bruger deres aktuelle temperatur og setpunkt til beregning af rumtemperatur og varmebehov. Valgfrit.",
-          "degree_base": "Temperatur, som modellen bruger som reference for beregning af graddøgn. Standard er 17 °C."
+          "degree_base": "Temperatur, som modellen bruger som reference for beregning af graddøgn. Standard er 17 °C.",
+          "weather_entity": "Vælg din Home Assistant-vejrudsigt. ThermoPilot bruger timeprognosen til at beregne forventet elforbrug de næste 24 timer. Valgfrit."
         }
       }
     },
@@ -37,7 +39,8 @@
           "supply_entity": "Varmesystem – fremløbstemperatur (°C)",
           "return_entity": "Varmesystem – returtemperatur (°C)",
           "climate_entities": "Varmesystem – rumtermostater (setpunkt og aktuel temperatur)",
-          "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)"
+          "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)",
+          "weather_entity": "Vejrudsigt – timeprognose"
         },
         "data_description": {
           "energy_entity": "Kumulativ måler for varmepumpens samlede elforbrug (Wh, kWh eller MWh).",
@@ -45,7 +48,8 @@
           "supply_entity": "Sensor på fremløbet fra varmepumpen. Valgfrit.",
           "return_entity": "Sensor på returen til varmepumpen. Valgfrit.",
           "climate_entities": "Vælg de eksisterende climate-termostater for rummene. ThermoPilot bruger deres aktuelle temperatur og setpunkt til beregning af rumtemperatur og varmebehov. Valgfrit.",
-          "degree_base": "Referencetemperatur til modellens graddøgnsberegning. Standard er 17 °C."
+          "degree_base": "Referencetemperatur til modellens graddøgnsberegning. Standard er 17 °C.",
+          "weather_entity": "Vælg din Home Assistant-vejrudsigt. ThermoPilot bruger timeprognosen til at beregne forventet elforbrug de næste 24 timer. Valgfrit."
         }
       }
     }

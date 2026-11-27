@@ -18,8 +18,10 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 - Læser en kumulativ energisensor i Wh, kWh eller MWh og beregner dagens forbrug ud fra tællerens ændring.
 - Læser udetemperatur, fremløb, retur og valgfri rumtemperaturer.
 - Beregner gennemsnit af de valgte rumtemperaturer.
-- Kan tælle termostater, der aktuelt står `on`, `heat`, `heating`, `open`, `true` eller `1`.
-- Termostat-/telestatvælgeren accepterer entiteter fra domænerne `sensor`, `binary_sensor`, `switch` og `climate`.\n- Valgfri climate-entiteter med `current_temperature` og `temperature` bruges til at beregne temperaturunderskud og lære opvarmningshastighed pr. rum/kreds.\n- ThermoPilot estimerer resterende opvarmningstid ud fra hvert rums målte temperaturstigning. Estimatet forbedres løbende, efterhånden som der indsamles målinger.
+- Vælg rummenes eksisterende `climate`-termostater én gang. ThermoPilot læser både setpunkt (`temperature`) og aktuel temperatur (`current_temperature`).
+- Beregner temperaturunderskud og lærer opvarmningshastighed pr. rum/kreds.
+- Bruger `hvac_action` når det findes, ellers temperaturforskellen, til at vurdere om rummet kalder på varme.
+- Estimerer resterende opvarmningstid ud fra hvert rums målte temperaturstigning.
 - Tomme valgfrie entitetsfelter og tomme telestat-/termostatlister håndteres ved lagring.
 - Gemmer daglige datapunkter lokalt i Home Assistant.
 - Efter mindst fem afsluttede dage tilpasser den en adaptiv, recency-vægtet model: samlet dagligt elforbrug = vejrafhængigt forbrug + grundlast. Nye dage vægtes højere, men målinger fra omtrent samme kalenderperiode i tidligere år får også ekstra sæsonvægt. Der gemmes op til 730 dage (ca. to år), så modellen kan genbruge erfaring fra samme årstid.
@@ -45,7 +47,8 @@ Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i 
 - Aktuel og gennemsnitlig udetemperatur
 - Gennemsnitlig rumtemperatur og antal aktive rumfølere
 - Fremløb, retur og temperaturforskel
-- Antal aktive termostater\n- Samlet temperaturunderskud og estimeret opvarmningstid pr. valgt climate-kreds
+- Antal rumtermostater, der kalder på varme
+- Samlet temperaturunderskud og estimeret opvarmningstid pr. rum/kreds
 - Vejrafhængigt elforbrug og estimeret samlet elforbrug i dag
 - Modelkoefficient, modelgrundlast, antal modeldage og modelstatus
 

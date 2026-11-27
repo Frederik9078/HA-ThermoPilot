@@ -9,13 +9,15 @@ from .const import DOMAIN
 
 DEFAULT_ENABLED_SENSORS = {
     "estimated_room_warmup_minutes",
+    "energy_today_kwh",
+    "forecast_electricity_next_24h_kwh",
     "model_accuracy_30d",
     "model_status",
 }
 
 SENSORS = [
     ("energy_total_kwh", "Samlet energimåler", "kWh", "energy", "total"),
-    ("energy_today_kwh", "Samlet elforbrug i dag", "kWh", "energy", "measurement"),
+    ("energy_today_kwh", "Brugt energi i dag", "kWh", "energy", "measurement"),
     ("outdoor_temperature", "Udetemperatur", "°C", "temperature", "measurement"),
     ("outdoor_average_today", "Gennemsnitlig udetemperatur i dag", "°C", "temperature", "measurement"),
     ("indoor_average", "Gennemsnitlig rumtemperatur", "°C", "temperature", "measurement"),
@@ -27,6 +29,7 @@ SENSORS = [
     ("thermostat_active_count", "Aktive termostater", None, None, None),
     ("room_heat_demand_c", "Samlet temperaturunderskud i rum", "°C", None, "measurement"),
     ("estimated_room_warmup_minutes", "Estimeret opvarmningstid for rum", "min", "duration", "measurement"),
+    ("forecast_electricity_next_24h_kwh", "Forventet elforbrug næste 24 timer", "kWh", "energy", "measurement"),
     ("weather_dependent_electricity_today", "Vejrafhængigt elforbrug i dag", "kWh/døgn", None, "measurement"),
     ("estimated_total_electricity_today", "Estimeret samlet elforbrug i dag", "kWh/døgn", None, "measurement"),
     ("model_slope", "Modelkoefficient", "kWh pr. graddøgn", None, "measurement"),
@@ -98,6 +101,13 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
                 "model_days": self.coordinator.data.get("model_days"),
                 "model_status": self.coordinator.data.get("model_status"),
                 "model_type": "Recency-weighted linear regression, 45-day half-life",
+            }
+        if self.key == "forecast_electricity_next_24h_kwh":
+            return {
+                "method": "Døgnmodellen evalueres med den senest målte udetemperatur som proxy for gennemsnittet de næste 24 timer.",
+                "limitation": "Dette er endnu ikke en vejrprognosebaseret beregning. En vejrprognosekilde skal tilføjes for at tage højde for forventede temperaturændringer.",
+                "model_days": self.coordinator.data.get("model_days"),
+                "model_status": self.coordinator.data.get("model_status"),
             }
         if self.key == "model_accuracy_30d":
             return {

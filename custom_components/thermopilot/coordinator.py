@@ -138,10 +138,21 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 0.0, model["slope"] * degree_days + model["intercept"]
             )
 
+        # Provisional rolling-24h estimate: the daily model is evaluated using
+        # the latest outdoor temperature as a proxy for the coming day's mean.
+        # A weather forecast entity will be needed for a true weather-led forecast.
+        forecast_24h_kwh = None
+        if model and outdoor is not None:
+            forecast_degree_days = max(0.0, base - outdoor)
+            forecast_24h_kwh = max(
+                0.0, model["slope"] * forecast_degree_days + model["intercept"]
+            )
+
         accuracy = self._calculate_accuracy(days, now.date())
         data = {
             "energy_total_kwh": energy,
             "energy_today_kwh": round(float(self.history.get("day_energy_kwh", 0)), 3),
+            "forecast_electricity_next_24h_kwh": round(forecast_24h_kwh, 2) if forecast_24h_kwh is not None else None,
             "outdoor_temperature": outdoor,
             "outdoor_average_today": outdoor_today,
             "indoor_average": indoor_avg,

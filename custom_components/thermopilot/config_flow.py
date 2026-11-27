@@ -65,10 +65,6 @@ class ThermoPilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional("supply_entity"): _entity_selector(),
             vol.Optional("return_entity"): _entity_selector(),
             vol.Optional("room_entities", default=[]): _entity_selector(multiple=True),
-            vol.Optional("thermostat_entities", default=[]): _entity_selector(
-                multiple=True,
-                domain=["sensor", "binary_sensor", "switch", "climate"],
-            ),
             vol.Optional("climate_entities", default=[]): _entity_selector(
                 multiple=True,
                 domain="climate",
@@ -105,20 +101,17 @@ class ThermoPilotOptionsFlow(config_entries.OptionsFlow):
             for entity_id in (current.get("room_entities") or [])
             if isinstance(entity_id, str) and entity_id
         ]
-        thermostat_entities = [
-            entity_id
-            for entity_id in (current.get("thermostat_entities") or [])
-            if isinstance(entity_id, str) and entity_id
-        ]
         schema_fields[
             vol.Optional("room_entities", default=room_entities)
         ] = _entity_selector(multiple=True)
+        climate_entities = [
+            entity_id
+            for entity_id in (current.get("climate_entities") or [])
+            if isinstance(entity_id, str) and entity_id
+        ]
         schema_fields[
-            vol.Optional("thermostat_entities", default=thermostat_entities)
-        ] = _entity_selector(
-            multiple=True,
-            domain=["sensor", "binary_sensor", "switch", "climate"],
-        )
+            vol.Optional("climate_entities", default=climate_entities)
+        ] = _entity_selector(multiple=True, domain="climate")
         schema_fields[
             vol.Optional("degree_base", default=current.get("degree_base", 17.0))
         ] = vol.All(vol.Coerce(float), vol.Range(min=10, max=25))

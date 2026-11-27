@@ -9,9 +9,7 @@
           "outdoor_entity": "Bygning – udetemperatur (°C)",
           "supply_entity": "Varmesystem – fremløbstemperatur (°C)",
           "return_entity": "Varmesystem – returtemperatur (°C)",
-          "room_entities": "Bygning – rumtemperaturer (°C)",
-          "climate_entities": "Varmesystem – rumtermostater (setpunkt og aktuel temperatur)",
-          "climate_entities": "Varmesystem – rumtermostater med setpunkt og aktuel temperatur",
+          "climate_entities": "Heating system – room thermostats (setpoint and current temperature)",
           "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)"
         },
         "data_description": {
@@ -19,9 +17,7 @@
           "outdoor_entity": "Sensoren, der måler temperaturen udenfor.",
           "supply_entity": "Sensor på fremløbet fra varmepumpen. Valgfrit.",
           "return_entity": "Sensor på returen til varmepumpen. Valgfrit.",
-          "room_entities": "Vælg de rumtemperaturfølere, der skal indgå i gennemsnittet. Valgfrit.",
-          "climate_entities": "Vælg rummenes eksisterende climate-termostater. ThermoPilot bruger setpunkt og aktuel temperatur og lærer hver kreds’ opvarmningshastighed. Valgfrit.",
-          "climate_entities": "Vælg climate-entiteter med attributterne current_temperature og temperature. ThermoPilot lærer hver kreds’ opvarmningshastighed. Valgfrit.",
+          "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses their current temperature and setpoint for room temperature and heat-demand calculations. Optional.",
           "degree_base": "Temperatur, som modellen bruger som reference for beregning af graddøgn. Standard er 17 °C."
         }
       }
@@ -40,8 +36,7 @@
           "outdoor_entity": "Bygning – udetemperatur (°C)",
           "supply_entity": "Varmesystem – fremløbstemperatur (°C)",
           "return_entity": "Varmesystem – returtemperatur (°C)",
-          "room_entities": "Bygning – rumtemperaturer (°C)",
-          "climate_entities": "Varmesystem – rumtermostater (setpunkt og aktuel temperatur)",
+          "climate_entities": "Heating system – room thermostats (setpoint and current temperature)",
           "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)"
         },
         "data_description": {
@@ -49,8 +44,7 @@
           "outdoor_entity": "Sensor, der måler temperaturen udenfor.",
           "supply_entity": "Sensor på fremløbet fra varmepumpen. Valgfrit.",
           "return_entity": "Sensor på returen til varmepumpen. Valgfrit.",
-          "room_entities": "Rumtemperaturfølere, der skal indgå i gennemsnittet. Valgfrit.",
-          "climate_entities": "Vælg rummenes eksisterende climate-termostater. ThermoPilot bruger setpunkt og aktuel temperatur og lærer hver kreds’ opvarmningshastighed. Valgfrit.",
+          "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses their current temperature and setpoint for room temperature and heat-demand calculations. Optional.",
           "degree_base": "Referencetemperatur til modellens graddøgnsberegning. Standard er 17 °C."
         }
       }

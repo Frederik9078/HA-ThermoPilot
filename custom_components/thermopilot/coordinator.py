@@ -194,7 +194,7 @@ class ThermoPilotCoordinator(DataUpdateCoordinator):
                 rise = current - float(previous_temp)
                 # Learn only plausible positive warm-up observations. A 5-minute
                 # sample is noisy, so smooth the rate rather than replacing it.
-                if 0.04 <= elapsed_hours <= 1.0 and rise > 0.015:
+                previous_target = float(room.get("last_target", previous_temp))\n                was_calling_for_heat = previous_target > float(previous_temp) + 0.2\n                is_calling_for_heat = target > current + 0.2\n                if (\n                    0.04 <= elapsed_hours <= 1.0\n                    and rise > 0.015\n                    and was_calling_for_heat\n                    and is_calling_for_heat\n                ):
                     rate = rise / elapsed_hours
                     if 0.05 <= rate <= 3.0:
                         old_rate = room.get("warmup_rate")

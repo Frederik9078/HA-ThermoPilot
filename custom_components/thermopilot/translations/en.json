@@ -10,7 +10,8 @@
           "supply_entity": "Heating system – flow temperature (°C)",
           "return_entity": "Heating system – return temperature (°C)",
           "climate_entities": "Heating system – room thermostats (setpoint and current temperature)",
-          "degree_base": "Building – heating reference temperature (°C)"
+          "degree_base": "Building – heating reference temperature (°C)",
+          "weather_entity": "Weather – hourly forecast"
         },
         "data_description": {
           "energy_entity": "Select a cumulative energy meter for the heat pump's total electricity use. Unit can be Wh, kWh or MWh.",
@@ -18,7 +19,8 @@
           "supply_entity": "Sensor on the flow from the heat pump. Optional.",
           "return_entity": "Sensor on the return to the heat pump. Optional.",
           "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses their current temperature and setpoint for room temperature and heat-demand calculations. Optional.",
-          "degree_base": "Reference temperature used by the model to calculate heating degree days. Defaults to 17 °C."
+          "degree_base": "Reference temperature used by the model to calculate heating degree days. Defaults to 17 °C.",
+          "weather_entity": "Select your Home Assistant weather entity. ThermoPilot uses its hourly forecast to estimate electricity use over the next 24 hours. Optional."
         }
       }
     },
@@ -38,7 +40,8 @@
           "return_entity": "Heating system – return temperature (°C)",
           "thermostat_entities": "Heating system – thermal actuators/thermostats (status)",
           "degree_base": "Building – heating reference temperature (°C)",
-          "climate_entities": "Heating system – room thermostats (setpoint and current temperature)"
+          "climate_entities": "Heating system – room thermostats (setpoint and current temperature)",
+          "weather_entity": "Weather – hourly forecast"
         },
         "data_description": {
           "energy_entity": "Cumulative meter for total heat pump electricity use (Wh, kWh or MWh).",
@@ -46,7 +49,8 @@
           "supply_entity": "Sensor on the flow from the heat pump. Optional.",
           "return_entity": "Sensor on the return to the heat pump. Optional.",
           "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses their current temperature and setpoint for room temperature and heat-demand calculations. Optional.",
-          "degree_base": "Reference temperature for the model's heating degree day calculation. Defaults to 17 °C."
+          "degree_base": "Reference temperature for the model's heating degree day calculation. Defaults to 17 °C.",
+          "weather_entity": "Select your Home Assistant weather entity. ThermoPilot uses its hourly forecast to estimate electricity use over the next 24 hours. Optional."
         }
       }
     }

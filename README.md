@@ -2,7 +2,7 @@
 
 Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata og udvikling af en eksperimentel varmebehovsmodel.
 
-> **Udviklingsversion 0.1.2:** Denne version er kun til overvågning og test. Den styrer ikke varmepumpen.
+> **Udviklingsversion 0.1.3:** Denne version er kun til overvågning og test. Den styrer ikke varmepumpen.
 
 ## Installation via HACS
 
@@ -13,7 +13,7 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 5. Genstart Home Assistant.
 6. Tilføj **ThermoPilot** under **Indstillinger → Enheder og tjenester → Tilføj integration**.
 
-## Funktioner i version 0.1.2
+## Funktioner i version 0.1.3
 
 - Læser en kumulativ energisensor i Wh, kWh eller MWh og beregner dagens forbrug ud fra tællerens ændring.
 - Læser udetemperatur, fremløb og retur. Rumtemperaturer hentes automatisk fra de valgte climate-termostater.
@@ -22,9 +22,14 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 - Beregner temperaturunderskud og lærer opvarmningshastighed pr. rum/kreds.
 - Bruger `hvac_action` når det findes, ellers temperaturforskellen, til at vurdere om rummet kalder på varme.
 - Estimerer resterende opvarmningstid ud fra hvert rums målte temperaturstigning.
+- Beregner en 30-dages modelnøjagtighed ved historisk backtest: hver dags forbrug forudsiges kun ud fra tidligere afsluttede dage.
 - Tomme valgfrie entitetsfelter og tomme telestat-/termostatlister håndteres ved lagring.
 - Gemmer daglige datapunkter lokalt i Home Assistant.
 - Efter mindst fem afsluttede dage tilpasser den en adaptiv, recency-vægtet model: samlet dagligt elforbrug = vejrafhængigt forbrug + grundlast. Nye dage vægtes højere, men målinger fra omtrent samme kalenderperiode i tidligere år får også ekstra sæsonvægt. Der gemmes op til 730 dage (ca. to år), så modellen kan genbruge erfaring fra samme årstid.
+
+## Modelnøjagtighed
+
+Sensoren **Prognosenøjagtighed – 30 dage** viser 100 % minus den gennemsnitlige absolutte procentafvigelse på op til de seneste 30 dage, hvor modellen kunne lave en historisk prognose. Hver testdag holdes ude af træningsdata, så modellen ikke får lov at kende dagens faktiske forbrug på forhånd. Beregningen bruger dog dagens målte gennemsnitlige udetemperatur. Den måler derfor modellens evne til at forudsige elforbruget ved kendt vejr – ikke den samlede præcision inklusive vejrudsigten. Sensoren er tom, indtil der er tilstrækkeligt historisk datagrundlag til at lave backtests.
 
 ## Vigtige begrænsninger
 
@@ -50,11 +55,11 @@ Sensorerne **Vejrafhængigt elforbrug i dag** og **Estimeret samlet elforbrug i 
 - Antal rumtermostater, der kalder på varme
 - Samlet temperaturunderskud og estimeret opvarmningstid pr. rum/kreds
 - Vejrafhængigt elforbrug og estimeret samlet elforbrug i dag
-- Modelkoefficient, modelgrundlast, antal modeldage og modelstatus
+- Modelkoefficient, modelgrundlast, antal modeldage, modelstatus og 30-dages prognosenøjagtighed
 
 ## Opdateringer
 
-Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.2`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
+Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.3`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
 
 ## Projekt
 

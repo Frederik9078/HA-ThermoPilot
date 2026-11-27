@@ -1,0 +1,14 @@
+{
+  "domain": "thermopilot",
+  "name": "ThermoPilot",
+  "version": "0.1.0",
+  "documentation": "https://github.com/Frederik9078/HA-ThermoPilot",
+  "issue_tracker": "https://github.com/Frederik9078/HA-ThermoPilot/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "Frederik9078"
+  ],
+  "config_flow": true,
+  "iot_class": "local_polling"
+}

@@ -8,7 +8,7 @@ Custom Home Assistant-integration til indsamling af varmepumpe- og bygningsdata 
 
 1. Åbn **HACS → Integrationer** i Home Assistant.
 2. Åbn menuen med de tre prikker, og vælg **Custom repositories**.
-3. Indsæt `https://github.com/Frederik9078/ha-thermopilot` og vælg kategorien **Integration**.
+3. Indsæt `https://github.com/Frederik9078/HA-ThermoPilot` og vælg kategorien **Integration**.
 4. Find **ThermoPilot**, og vælg Download.
 5. Genstart Home Assistant.
 6. Tilføj **ThermoPilot** under **Indstillinger → Enheder og tjenester → Tilføj integration**.
@@ -46,14 +46,13 @@ Sensoren **Vejrafhængigt elforbrug estimeret i dag** er kun et eksperimentelt, 
 - Gennemsnitlig rumtemperatur og antal aktive rumfølere
 - Fremløb, retur og temperaturforskel
 - Antal aktive termostater
-- Status for varmepumpens interne elpatron
 - Vejrafhængigt elforbrug estimeret i dag
 - Modelkoefficient, modelgrundlast, antal modeldage og modelstatus
 
 ## Opdateringer
 
-Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.0`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se [RELEASING.md](RELEASING.md).
+Nye versioner udgives som GitHub Releases med versions-tags, f.eks. `v0.1.0`. Når en ny release er udgivet, kan HACS tilbyde den som opdatering. Se GitHub-repositoriet for versionshistorik og installationsvejledning.
 
 ## Projekt
 
-[GitHub repository](https://github.com/Frederik9078/ha-thermopilot)
+[GitHub repository](https://github.com/Frederik9078/HA-ThermoPilot)

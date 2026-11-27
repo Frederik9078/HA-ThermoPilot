@@ -7,7 +7,7 @@ from homeassistant.helpers import selector
 from .const import DOMAIN
 
 
-MULTI_ENTITY_FIELDS = ("room_entities", "thermostat_entities")
+MULTI_ENTITY_FIELDS = ("room_entities", "thermostat_entities", "climate_entities")
 
 
 def _entity_selector(multiple=False, domain="sensor"):
@@ -68,6 +68,10 @@ class ThermoPilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional("thermostat_entities", default=[]): _entity_selector(
                 multiple=True,
                 domain=["sensor", "binary_sensor", "switch", "climate"],
+            ),
+            vol.Optional("climate_entities", default=[]): _entity_selector(
+                multiple=True,
+                domain="climate",
             ),
             vol.Optional("degree_base", default=17.0): vol.All(
                 vol.Coerce(float), vol.Range(min=10, max=25)

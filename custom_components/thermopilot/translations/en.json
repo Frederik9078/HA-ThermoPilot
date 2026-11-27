@@ -9,9 +9,7 @@
           "outdoor_entity": "Building – outdoor temperature (°C)",
           "supply_entity": "Heating system – flow temperature (°C)",
           "return_entity": "Heating system – return temperature (°C)",
-          "room_entities": "Building – room temperatures (°C)",
           "climate_entities": "Heating system – room thermostats (setpoint and current temperature)",
-          "climate_entities": "Heating system – room thermostats with setpoint and current temperature",
           "degree_base": "Building – heating reference temperature (°C)"
         },
         "data_description": {
@@ -19,9 +17,7 @@
           "outdoor_entity": "Sensor measuring the outdoor temperature.",
           "supply_entity": "Sensor on the flow from the heat pump. Optional.",
           "return_entity": "Sensor on the return to the heat pump. Optional.",
-          "room_entities": "Select room temperature sensors to include in the average. Optional.",
-          "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses setpoint and current temperature and learns each circuit’s warm-up rate. Optional.",
-          "climate_entities": "Select climate entities exposing current_temperature and temperature. ThermoPilot learns each circuit’s warm-up rate. Optional.",
+          "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses their current temperature and setpoint for room temperature and heat-demand calculations. Optional.",
           "degree_base": "Reference temperature used by the model to calculate heating degree days. Defaults to 17 °C."
         }
       }
@@ -40,18 +36,16 @@
           "outdoor_entity": "Building – outdoor temperature (°C)",
           "supply_entity": "Heating system – flow temperature (°C)",
           "return_entity": "Heating system – return temperature (°C)",
-          "room_entities": "Building – room temperatures (°C)",
           "thermostat_entities": "Heating system – thermal actuators/thermostats (status)",
-          "degree_base": "Building – heating reference temperature (°C)"
+          "degree_base": "Building – heating reference temperature (°C)",
+          "climate_entities": "Heating system – room thermostats (setpoint and current temperature)"
         },
         "data_description": {
           "energy_entity": "Cumulative meter for total heat pump electricity use (Wh, kWh or MWh).",
           "outdoor_entity": "Sensor measuring outdoor temperature.",
           "supply_entity": "Sensor on the flow from the heat pump. Optional.",
           "return_entity": "Sensor on the return to the heat pump. Optional.",
-          "room_entities": "Room temperature sensors included in the average. Optional.",
-          "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses setpoint and current temperature and learns each circuit’s warm-up rate. Optional.",
-          "climate_entities": "Select climate entities with current temperature and setpoint so ThermoPilot can learn warm-up time per circuit. Optional.",
+          "climate_entities": "Select the existing room climate thermostats. ThermoPilot uses their current temperature and setpoint for room temperature and heat-demand calculations. Optional.",
           "degree_base": "Reference temperature for the model's heating degree day calculation. Defaults to 17 °C."
         }
       }

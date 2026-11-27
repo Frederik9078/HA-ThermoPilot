@@ -19,7 +19,8 @@ SENSORS = [
     ("return_temperature", "Returtemperatur", "°C", "temperature", "measurement"),
     ("temperature_difference", "Temperaturforskel fremløb/retur", "°C", "temperature", "measurement"),
     ("thermostat_active_count", "Aktive termostater", None, None, None),
-    ("weather_sensitive_electricity_today", "Vejrafhængigt elforbrug estimeret i dag", "kWh/døgn", None, "measurement"),
+    ("weather_dependent_electricity_today", "Vejrafhængigt elforbrug i dag", "kWh/døgn", None, "measurement"),
+    ("estimated_total_electricity_today", "Estimeret samlet elforbrug i dag", "kWh/døgn", None, "measurement"),
     ("model_slope", "Modelkoefficient", "kWh pr. graddøgn", None, "measurement"),
     ("model_intercept", "Modelgrundlast", "kWh/døgn", None, "measurement"),
     ("model_days", "Dage i beregningsmodel", "dage", None, "measurement"),
@@ -70,12 +71,13 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self):
         if not self.coordinator.data:
             return {}
-        if self.key == "weather_sensitive_electricity_today":
+        if self.key in ("weather_dependent_electricity_today", "estimated_total_electricity_today"):
             return {
-                "explanation": "Eksperimentelt estimat fra dagligt samlet elforbrug og graddøgn.",
-                "warning": "Det samlede elforbrug kan også indeholde varmtvandsproduktion og elpatronforbrug; det er ikke målt varmeenergi.",
+                "explanation": "Adaptivt estimat baseret på dagligt samlet elforbrug, graddøgn og en estimeret grundlast.",
+                "warning": "Det er et estimat af samlet elforbrug, ikke isoleret rumopvarmning eller målt varmeenergi. Varmtvandsproduktion og elpatronforbrug kan indgå.",
                 "model_days": self.coordinator.data.get("model_days"),
                 "model_status": self.coordinator.data.get("model_status"),
+                "model_type": "Recency-weighted linear regression, 14-day half-life",
             }
         if self.key == "energy_today_kwh":
             return {

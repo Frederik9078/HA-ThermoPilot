@@ -19,6 +19,8 @@ SENSORS = [
     ("return_temperature", "Returtemperatur", "°C", "temperature", "measurement"),
     ("temperature_difference", "Temperaturforskel fremløb/retur", "°C", "temperature", "measurement"),
     ("thermostat_active_count", "Aktive termostater", None, None, None),
+    ("room_heat_demand_c", "Samlet temperaturunderskud i rum", "°C", None, "measurement"),
+    ("estimated_room_warmup_minutes", "Estimeret opvarmningstid for rum", "min", "duration", "measurement"),
     ("weather_dependent_electricity_today", "Vejrafhængigt elforbrug i dag", "kWh/døgn", None, "measurement"),
     ("estimated_total_electricity_today", "Estimeret samlet elforbrug i dag", "kWh/døgn", None, "measurement"),
     ("model_slope", "Modelkoefficient", "kWh pr. graddøgn", None, "measurement"),
@@ -71,13 +73,13 @@ class ThermoPilotSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self):
         if not self.coordinator.data:
             return {}
-        if self.key in ("weather_dependent_electricity_today", "estimated_total_electricity_today"):
+        if self.key in ("room_heat_demand_c", "estimated_room_warmup_minutes"):\n            return {\n                "rooms": self.coordinator.data.get("room_thermal_details", []),\n                "explanation": "Setpunkt minus aktuel rumtemperatur. Opvarmningstiden bygger på den indlærte temperaturstigning for hver valgt climate-entitet.",\n                "note": "Estimaterne er foreløbige og påvirkes af udetemperatur, varmekildens drift og måleusikkerhed.",\n            }\n        if self.key in ("weather_dependent_electricity_today", "estimated_total_electricity_today"):
             return {
                 "explanation": "Adaptivt estimat baseret på dagligt samlet elforbrug, graddøgn og en estimeret grundlast.",
                 "warning": "Det er et estimat af samlet elforbrug, ikke isoleret rumopvarmning eller målt varmeenergi. Varmtvandsproduktion og elpatronforbrug kan indgå.",
                 "model_days": self.coordinator.data.get("model_days"),
                 "model_status": self.coordinator.data.get("model_status"),
-                "model_type": "Recency-weighted linear regression, 14-day half-life",
+                "model_type": "Recency-weighted linear regression, 45-day half-life",
             }
         if self.key == "energy_today_kwh":
             return {

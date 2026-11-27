@@ -10,7 +10,7 @@
           "supply_entity": "Varmesystem – fremløbstemperatur (°C)",
           "return_entity": "Varmesystem – returtemperatur (°C)",
           "room_entities": "Bygning – rumtemperaturer (°C)",
-          "thermostat_entities": "Varmesystem – telestater/termostater (status)",
+          "thermostat_entities": "Varmesystem – telestater/termostater (status)",\n          "climate_entities": "Varmesystem – rumtermostater med setpunkt og aktuel temperatur",
           "degree_base": "Bygning – beregningsmæssig udetemperatur (°C)"
         },
         "data_description": {
@@ -19,7 +19,7 @@
           "supply_entity": "Sensor på fremløbet fra varmepumpen. Valgfrit.",
           "return_entity": "Sensor på returen til varmepumpen. Valgfrit.",
           "room_entities": "Vælg de rumtemperaturfølere, der skal indgå i gennemsnittet. Valgfrit.",
-          "thermostat_entities": "Vælg telestater eller termostater, som skal tælles som aktive, når deres status er aktiv. Valgfrit.",
+          "thermostat_entities": "Vælg telestater eller termostater, som skal tælles som aktive, når deres status er aktiv. Valgfrit.",\n          "climate_entities": "Vælg climate-entiteter med attributterne current_temperature og temperature. ThermoPilot lærer hver kreds’ opvarmningshastighed. Valgfrit.",
           "degree_base": "Temperatur, som modellen bruger som reference for beregning af graddøgn. Standard er 17 °C."
         }
       }
